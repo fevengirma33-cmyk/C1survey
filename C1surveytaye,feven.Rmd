@@ -1,0 +1,95 @@
+---
+title: 'Lab: Class One Survey Analysis'
+output:
+  html_document:
+name: Feven Taye    
+---
+
+
+### **INSTRUCTIONS**
+####  **Complete all tasks 1-7 using reproducible coding practices (annotation of all code). Use R syntax to solve all problems (i.e. do not manually change values/variables in datasets or check them manually to make sure things are correct except as a double or triple check). Please cut and paste each problem before each R markdown chunk and annotate your code within the chunks.**
+
+
+##### 1. Import class one survey data from our Github site (https://github.com/kijohnson/Advanced-Data-Analysis) (The dataset is called 'Class 1 Survey Fall 2026.csv'), calling the R dataframe that you create *C1survey*.
+```{r} 
+library (readr)
+C1survey <- read_csv ("C:/Users/feven/Downloads/C1survey.csv") 
+```
+
+##### 2. Determine: **a.** the number of observations (i.e. the number of people who filled out the survey) and **b.** the number of variables in the dataframe.    
+```{r} 
+View(C1survey)
+dim(C1survey)
+```
+
+
+##### 3. **a.** Rename the column variables to something shorter and that is descriptive of what the variable is about (for example *like_dogs* for the 'Do you like dogs?' question variable) and **b.** Display that they are renamed. **Hints**: You can use either the rename_with function or the names function. The list of names for time is:
+
+```{r, echo=TRUE}
+c("id", "like_cats", "like_dogs", "have_desert", "slogan", "fav_day", "larkORowl", "fav_food", "fav_drink", "fav_season", "fav_month", "hobby", "program", "specialization", "stat_software", "R_exp", "coding_comfort", "coding_length", "top_three", "public_health_interest", "fav_num", "bday", "bmonth", "country", "state", "city",  "highest_educ_level")  
+  
+```
+
+
+```{r}
+names(C1survey)[1:27]<-  c("id", "like_cats", "like_dogs", "have_desert", "slogan", "fav_day", "larkORowl", "fav_food", "fav_drink", "fav_season", "fav_month", "hobby", "program", "specialization", "stat_software", "R_exp", "coding_comfort", "coding_length", "top_three", "public_health_interest", "fav_num", "bday", "bmonth", "country", "state", "city",  "highest_educ_level")
+```
+
+##### 4. Write code to determine and display the number of factor, integer, numerical, and character variables there are in the *C1survey* dataset. **Suggestion**: Try to ask ChatGPT for a solution if you are unsure. There is a really short answer to this but we want to see what students come up with!
+```{r}
+counts <- sapply(C1survey,class)
+table(factor(counts,levels=c("factor","integer","numeric","character")))
+```
+
+##### 5. **a.** Using code, check the *bday* and *bmonth* variables for any unusual or missing values (**hint**: use table function). If you find any, **b.** describe what you will do with the unusual values in a comment before or immediately following the code that does it, and **c.** after you have cleaned up any unusual values, find the median bday and month. *Note: please make sure that your bday and month variables are numeric before doing statistics
+```{r part a}
+table(C1survey$bday,useNA="ifany") 
+table(C1survey$bmonth,useNA="ifany")
+```
+```{r part b}
+#4 monthes were entered as text, these are not correct so i will proceed to try and re-code them into numbers raher than removing them 
+C1survey$bmonth[C1survey$bmonth== "February"] <-2
+C1survey$bmonth[C1survey$bmonth== "March"] <-3
+C1survey$bmonth[C1survey$bmonth== "May"] <-5
+C1survey$bmonth[C1survey$bmonth== "November"] <-11
+C1survey$bday[C1survey$bday== "30-Nov"] <-NA 
+
+#Convert to numeric 
+C1survey$bday <-as.numeric(as.character(C1survey$bday))
+
+C1survey$bmonth<-as.numeric(as.character(C1survey$bmonth))
+```
+```{r Part C}
+#medians 
+median(C1survey$bday, na.rm=TRUE)
+median(C1survey$bmonth, na.rm=TRUE)
+```
+
+##### 6. **a.** Create a new variable called *bseason* that gives the season according to Northern Meteorological season in which respondents were born (winter = 12/1 to 2/29, spring = 3/1 to 5/31, summer = 6/1 to 8/31, fall = 9/1 to 11/30). **b**. Using the table function, print a table of Seasons in the columns and bmonths in the rows that allows you to check that the coding is correct **c**. Sum the columns using the addmargins function to answer the question of how many classmates were born in each season? Include your answer in the code. 
+```{r part a }
+#Assigning seasons based on birth month 
+C1survey$bseason <- NA 
+C1survey$bseason [C1survey$bmonth %in% c(12,1,2)] <-"Winter" 
+C1survey$bseason [C1survey$bmonth %in% c(3,4,5)] <-"spring" 
+C1survey$bseason [C1survey$bmonth %in% c(6,7,8)] <-"summer"
+C1survey$bseason [C1survey$bmonth %in% c(9,10,11)] <-"Fall"
+```
+```{r part b}
+table(C1survey$bmonth, C1survey$bseason)
+```
+```{r part C}
+addmargins(table(C1survey$bmonth, C1survey$bseason)) 
+# people had birthdays on Fall=13, Spring=4, summer=26,winter=4 
+```
+
+##### 7. Pick your favorite variable or variables to analyze, come up with a question you want to answer with that variable or variables, generate the code, and provide an answer to your question. Describe what you did using comments (i.e. #'s).
+```{r}
+#what was the month were most of my classmates born in? 
+table(C1survey$bseason) 
+#fall was the most common time and 13 people were born in fall
+```
+
+
+
+
+
